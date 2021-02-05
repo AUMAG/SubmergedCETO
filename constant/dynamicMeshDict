@@ -1,0 +1,83 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     4.1;
+    format      ascii;
+    class       dictionary;
+    object      motionProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+dynamicFvMesh       dynamicMotionSolverFvMesh;
+
+motionSolverLibs    ("libsixDoFRigidBodyMotion.so");
+
+solver              sixDoFRigidBodyMotion;
+
+sixDoFRigidBodyMotionCoeffs
+{
+    patches         (floatingObject);
+    innerDistance   0.01;
+    outerDistance   30.0;
+
+    centreOfMass    (100 0 -5);
+
+    // Density of the solid
+    // rho             500;
+
+    // Mass
+    mass            1256100; //
+
+    // Solid sphere moment of inertia
+    momentOfInertia (32891200 32891200 58890000); // 2*mass*(r**2)/5
+
+    report          on;
+    accelerationRelaxation 0.25;
+    //accelerationDamping 0.9;
+
+    solver
+    {
+        type Newmark;
+    }
+
+    restraints
+    {
+        verticalSpring
+	{
+	    sixDoFRigidBodyMotionRestraint modifiedBistableSpring;
+
+	    anchor          (100 0 -40);
+	    refAttachmentPt (100 0 -8);
+	    stiffness       3970900;
+	    damping         627700;
+	    restLength      32;
+	    pretension      5281000;
+	    BistableCoeff   0;
+	    BistableR       1.5;
+        }	
+
+    }
+   constraints
+    {
+         fixedAxisY // Allow rotation about y-axis only
+         {
+             sixDoFRigidBodyMotionConstraint axis;
+             axis (0 1 0);
+         }
+         fixedPlane // Allow movement about the x-z plane
+         {
+             sixDoFRigidBodyMotionConstraint plane;
+             normal			(0 1 0);
+         }
+
+    }
+}
+
+
+// ************************************************************************* //
