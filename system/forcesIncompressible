@@ -1,0 +1,22 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     |
+    \\  /    A nd           | Web:      www.OpenFOAM.org
+     \\/     M anipulation  |
+-------------------------------------------------------------------------------
+Description
+    Calculates pressure and viscous forces over specified patches for a case
+    where the solver is incompressible (pressure is kinematic, e.g. m^2/s^2).
+
+\*---------------------------------------------------------------------------*/
+
+#includeEtc "caseDicts/postProcessing/forces/forces.cfg"
+
+rhoInf      1025;    // Fluid density
+patches     (floatingObject);
+
+CofR        centreOfMass//(100 0 -7);
+pitchAxis   (0 1 0);
+
+// ************************************************************************* //

@@ -1,0 +1,109 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.x                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     4.1;
+    format      ascii;
+    class       dictionary;
+    location    "system";
+    object      controlDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+application     olaDyMFlow;
+
+startFrom       latestTime;
+
+startTime       0;
+
+stopAt          endTime;
+
+endTime         600;
+
+deltaT          0.1;
+
+writeControl    adjustableRunTime;
+
+writeInterval   0.5;
+
+purgeWrite      3;
+
+writeFormat     ascii;
+
+writePrecision  12;
+
+writeCompression uncompressed;
+
+timeFormat      general;
+
+timePrecision   6;
+
+runTimeModifiable yes;
+
+adjustTimeStep  yes;
+
+maxCo           .3;
+maxAlphaCo      .5;
+maxDeltaT       0.02;
+
+
+libs
+( 
+    "libwaveGeneration.so"
+    "libwaveAbsorption.so"   
+    "libmodifiedbistableSpring.so"
+    "libsampling.so"
+);
+
+functions
+{
+freeSurface
+    {
+        type surfaces;
+        functionObjectLibs
+        (
+            "libsampling.so"
+        );
+        writeControl    adjustableRunTime;
+        writeInterval 50;
+        interpolationScheme cellPoint;
+        surfaceFormat  raw;
+        fields
+        (
+        );
+        surfaces
+        (
+            topFreeSurface
+            {
+                type        isoSurface;
+                isoField    alpha.water;
+                isoValue    0.5;
+                interpolate true;
+            }
+        );
+    }
+   exForces
+    {
+        type  forces;
+ 	functionObjectLibs ("libforces.so");
+        writeControl    adjustableRunTime;
+        writeInterval 0.1;
+        patches ("floatingObject");
+        pName   p;
+        UName   U;
+        rhoName rhoInf;
+        log true;
+        CofR     (100 0 -5);
+        rhoInf   1025;
+    }
+
+
+}
+
+// ************************************************************************* //
+

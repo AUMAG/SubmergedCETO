@@ -1,0 +1,190 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  2.3.0                                 |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     4.1;
+    format      ascii;
+    class       dictionary;
+    object      snappyHexMeshDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Which of the steps to run
+castellatedMesh true;
+snap            true;
+addLayers       true;
+
+
+// Geometry. Definition of all surfaces. All surfaces are of class
+// searchableSurface.
+// Surfaces are used
+// - to specify refinement for any mesh cell intersecting it
+// - to specify refinement for any mesh cell inside/outside/near
+// - to 'snap' the mesh boundary to the surface
+geometry
+{
+    CETO.stl
+    {
+        type triSurfaceMesh;
+        name floatingObject;
+    }
+    refBox1
+    {
+        type searchableBox;
+        min (-1000 -1000 -10);
+        max (1000 1000 7);
+    }
+    refBox2
+    {
+        type searchableBox;
+        min (-1000 -1000 -5);
+        max (1000 1000 5);
+    }
+
+
+};
+
+castellatedMeshControls
+{
+    maxLocalCells 1000000;
+    maxGlobalCells 2000000;
+    minRefinementCells 0;
+    nCellsBetweenLevels 3;
+    features 
+    (
+        {
+            file "CETO.eMesh";
+            level 3;
+        }
+
+    );
+
+
+    refinementSurfaces
+    {
+        floatingObject
+        {
+            level (3 3);
+            patchInfo
+            {
+                type        wall;
+            }
+            faceType boundary;
+        }
+    }
+    resolveFeatureAngle 10;
+    refinementRegions
+    {
+        
+        refBox1
+        {
+            mode    inside;
+            levels  ((1E15 1));
+        }
+        refBox2
+        {
+            mode    inside;
+            levels  ((1E15 2));
+        }
+        //floatingObject
+        //{
+        //    mode    distance;
+        //    levels  ((1.0 3));
+        //}
+
+
+    }
+    locationInMesh (0 0 0.0001);
+    allowFreeStandingZoneFaces false;
+}
+
+
+snapControls
+{
+    nSmoothPatch 5;
+    tolerance 3.0;
+    nSolveIter 300;
+    nRelaxIter 20;
+
+
+    // Feature snapping
+    nFeatureSnapIter 1;
+    implicitFeatureSnap true;
+    explicitFeatureSnap false;
+    multiRegionFeatureSnap true;
+}
+
+
+addLayersControls
+{
+    relativeSizes true;
+    layers
+    {
+      floatingObject
+      {
+        nSurfaceLayers  0;
+      }
+    }
+    expansionRatio 1.0;
+    finalLayerThickness 0.7;
+    minThickness 0.3;
+    nGrow 0;
+    featureAngle 60;
+    //slipFeatureAngle 0;
+    nRelaxIter 5;
+    nSmoothSurfaceNormals 1;
+    nSmoothNormals 3;
+    nSmoothThickness 10;
+    maxFaceThicknessRatio 0.5;
+    maxThicknessToMedialRatio 0.3;
+    minMedianAxisAngle 90;
+    nBufferCellsNoExtrude 0;
+    nLayerIter 50;
+    nRelaxedIter 20;
+
+}
+
+
+
+// Generic mesh quality settings. At any undoable phase these determine
+// where to undo.
+meshQualityControls
+{
+    #include "meshQualityDict"
+
+    // Advanced
+
+    //- Number of error distribution iterations
+    nSmoothScale 10;
+    //- amount to scale back displacement at error points
+    errorReduction 0.85;
+    maxNonOrtho 65;
+    maxBoundarySkewness 20;
+    maxInternalSkewness 4;
+    maxConcave 80;
+    minVol 1.00E-13;
+    minTetQuality -1.0e30;
+    minArea -1;
+    minTwist 0.05;
+    minDeterminant 0.001;
+    minFaceWeight 0.05;
+    minVolRatio 0.01;
+    minTriangleTwist -1;
+    //minVolCollapseRatio 0.4;
+    minFlatness 0.5;
+}
+
+
+// Advanced
+
+// Merge tolerance. Is fraction of overall bounding box of initial mesh.
+// Note: the write tolerance needs to be higher than this.
+mergeTolerance 1e-6;
+
+
+// ************************************************************************* //
