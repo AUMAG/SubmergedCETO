@@ -1,0 +1,3 @@
+modifiedBistableSpring.C
+
+LIB = $(FOAM_USER_LIBBIN)/libmodifiedbistableSpring
